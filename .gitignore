@@ -1,0 +1,9 @@
+# python
+__pycache__
+
+# data
+*.sqlite
+*.log
+*.html
+# keep html templates
+!/templates/*.html
