@@ -8,13 +8,14 @@ parser = ArgumentParser()
 parser.add_argument("-t", "--top",
                     dest="top",
                     type=int,
+                    metavar="#",
                     default=config.DEFAULT_CHART,
-                    help=f"Number of entries to be displayed (default: {config.DEFAULT_CHART})")
+                    help=f"number of entries to be displayed (default: {config.DEFAULT_CHART})")
 parser.add_argument("-c", "--cli",
                     dest="cli",
                     default=False,
                     action="store_true",
-                    help="Print charts to console if this argument is included")
+                    help="parse charts to console instead of HTML")
 args = parser.parse_args()
 
 log = helper.get_logger()
