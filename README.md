@@ -29,6 +29,7 @@ Simply execute [chrome_charts.py](chrome_charts.py) either by double click or vi
 python chrome_charts.py
 ```
 A HTML file containing your top 10 most visited websites will be created in the apps root directory. The HTML file will open automatically in your default browser
+
 !["HTML output"](https://i.imgur.com/10QgRpG.png)
 
 ### Using arguments
