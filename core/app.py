@@ -8,17 +8,25 @@ import webbrowser
 from datetime import datetime
 from collections import Counter
 # vendor libs
-from jinja2 import Environment, FileSystemLoader
+try:
+    import jinja2
+except ModuleNotFoundError:
+    jinja2 = None
 # app modules
 from core import helper, config
 
 log = helper.get_logger()
 
+
 class Html_Handler():
     """ Class for handling HTML output """
     def __init__(self):
-        self.env = Environment(loader=FileSystemLoader(config.TEMPLATES_DIR))
-        self.template = self.env.get_template(config.HTML_TEMPLATE)
+        self.env = None
+        self.template = None
+
+        if jinja2:
+            self.env = jinja2.Environment(loader=jinja2.FileSystemLoader(config.TEMPLATES_DIR))
+            self.template = self.env.get_template(config.HTML_TEMPLATE)
 
     def write_html(self, charts, since):
         """ Render history charts as HTML from template
@@ -191,6 +199,9 @@ class History_Handler():
         if top:
             # Update list length and check if it exceeds the limit
             self.top = top if top <= config.MAX_CHART else config.MAX_CHART
+        if not jinja2:
+            # Fallback to command line if jinja2 couldn't be imported
+            cli = True
 
         # Construct the charts list 
         history = self._get_history()
@@ -207,3 +218,14 @@ class History_Handler():
             for i, c_url in enumerate(charts, start=1):
                 print('{i:02} {url:{padding}}{count}'.format(i=i, padding=self.padding, url=c_url[0], count=c_url[1]))
             print("")
+
+            # Log an error if jinja2 couldn't be imported so the user can fix it
+            if not jinja2:
+                error_msg = "HTML view is unavailable. Please execute 'pip install jinja2' and try again"
+                log.error(error_msg)
+                # Print to console if log printing isn't activated
+                if not config.PRINT_LOG:
+                    print(error_msg)
+                # Cue dummy input to preven't window close
+                if input("Press any key to close: "):
+                    return
