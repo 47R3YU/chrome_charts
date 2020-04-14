@@ -1,4 +1,4 @@
-""" Module containing the main classes for the history_charts app """
+""" Module containing the main classes for the app """
 # standard libs
 import re
 import os
@@ -41,7 +41,7 @@ class Html_Handler():
             with open(config.HTML_OUTPUT, 'w') as fh:
                 fh.write(self.template.render(
                     title="History Carts",
-                    history_charts=charts,
+                    charts=charts,
                     top=len(charts),
                     since=since
                 ))

@@ -9,7 +9,7 @@ MAX_CHART = 100
 PRINT_LOG = False
 # Set the log level; "ERROR": Only errors; "INFO": Standard; "DEBUG": Verbose;
 LOG_LEVEL = "INFO"
-# Shorten URLs
+# Shorten URLs in log
 MAX_URL_LENGTH = 60
 
 ### Static settings. Please don't alter
@@ -26,4 +26,4 @@ USER_PATH = os.environ["USERPROFILE"]
 DB_PATH = os.path.join(USER_PATH, "AppData/Local/Google/Chrome/User Data/Default/History")
 DB_PATH_LOCAL = os.path.join(DATA_DIR, "History.sqlite")
 
-LOG_FILE = os.path.join(LOG_DIR, "history_charts.log")
+LOG_FILE = os.path.join(LOG_DIR, "application.log")

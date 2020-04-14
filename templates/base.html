@@ -26,7 +26,7 @@
 
             <div class="row justify-content-center mb-3">
                 <div class="col-auto">
-                    {% if history_charts %}
+                    {% if charts %}
                     <div class="card shadow" style="min-width: 20rem;">
                         <div class="card-header pb-1">
                             <div class="row">
@@ -47,7 +47,7 @@
                             </div>
                         </div>
                         <ul class="list-group list-group-flush">
-                            {% for url in history_charts %}
+                            {% for url in charts %}
                             <li class="list-group-item">
                                 <a class="pr-4" href="{{ url.0 }}">{{ url.0 }}</a>
                                 <span class="badge badge-pill badge-primary float-right">{{ url.1 }}</span>

@@ -1,4 +1,4 @@
-""" Controller to execute histy_charts with arguments  """
+""" Controller to execute the app with arguments  """
 # standard libs
 from argparse import ArgumentParser
 # app modules
