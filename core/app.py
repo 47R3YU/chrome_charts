@@ -65,10 +65,9 @@ class History_Handler():
         self.cursor = None
         self.since = None
         self.top = config.DEFAULT_CHART
-        self.padding = 0
 
     def __enter__(self):
-        """ Function to establish DB connection. Called when when class is used with context manager """
+        """ Establish DB connection. Called when when class is used with context manager """
         self._copy_history_db()
 
         log.info(f"Connecting to DB [{config.DB_PATH_LOCAL}]")
@@ -82,7 +81,7 @@ class History_Handler():
             raise
 
     def __exit__(self, type, value, traceback):
-        """ Function to close DB connection. Called when class exits context manager """
+        """ Close DB connection. Called when class exits context manager """
         log.info(f"Disconnecting DB [{config.DB_PATH_LOCAL}]")
         self.dbh.close()
 
@@ -175,11 +174,6 @@ class History_Handler():
                 log.debug(log_msg)
                 skipped_urls += 1
                 continue
-            else:
-                # adjust the padding so long urls won't mangle the formatting when printing to console
-                url_length = len(url_stripped)
-                if url_length > self.padding:
-                    self.padding = url_length
 
             stripped_urls.append(url_stripped)
 
@@ -188,6 +182,7 @@ class History_Handler():
 
         # Use a Cunter object to count and order the list
         return list(Counter(stripped_urls).most_common(self.top))
+
 
     def create_charts(self, top=None, cli=False):
         """ Main function constructing the charts by calling various internal functions and displaying the result
@@ -211,12 +206,15 @@ class History_Handler():
         if not cli:
             Html_Handler().write_html(charts, self.since)
         else:
-            print("")
-            print(f"Chrome History - Top {self.top} visited URLs since {self.since}")
-            print("{nr:.<3}{url:.<{padding}}{count}".format(nr="#", url="url", padding=self.padding, count="visits"))
+            # Set padding to the length of the longest url + 5; Used to keep formatting dynamic
+            padding = max([len(url) for url, visits in charts]) + 5
 
-            for i, c_url in enumerate(charts, start=1):
-                print('{i:02} {url:{padding}}{count}'.format(i=i, padding=self.padding, url=c_url[0], count=c_url[1]))
+            print("")
+            print(f"Top {self.top} visited URLs since {self.since}")
+            print("{i:.<3}{url:.<{padding}}{visits}".format(i="#", url="url", padding=padding, visits="visits"))
+            
+            for i, entry in enumerate(charts, start=1):
+                print('{i:02} {url:{padding}}{visits}'.format(i=i, url=entry[0], padding=padding, visits=entry[1]))
             print("")
 
             # Log an error if jinja2 couldn't be imported so the user can fix it
@@ -226,6 +224,6 @@ class History_Handler():
                 # Print to console if log printing isn't activated
                 if not config.PRINT_LOG:
                     print(error_msg)
-                # Cue dummy input to preven't window close
-                if input("Press any key to close: "):
+                # Cue dummy input to prevent the window closing
+                if input("Press [Enter] to close "):
                     return
