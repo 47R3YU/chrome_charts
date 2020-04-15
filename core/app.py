@@ -2,6 +2,7 @@
 # standard libs
 import re
 import os
+import locale
 import shutil
 import sqlite3
 import webbrowser
@@ -14,6 +15,9 @@ except ModuleNotFoundError:
     jinja2 = None
 # app modules
 from core import helper, config
+
+# set locale to use the appropriate thousands seperator when formatting numbers
+locale.setlocale(locale.LC_ALL, "")
 
 log = helper.get_logger()
 
@@ -33,7 +37,7 @@ class Html_Handler():
         
         Arguments:
             charts {list} -- List of tuples containing URL and visits, like ("www.google.de", 120)
-            since {datetime} -- The age of the oldest entry
+            since {str} -- The age of the oldest entry
         """
 
         log.info(f"Parsing history charts to HTML -> [{config.HTML_OUTPUT}]")
@@ -51,7 +55,7 @@ class Html_Handler():
 
     def _open_html_file(self):
         """ Open the HTML file with the standard browser (new tab) """
-        log.debug(f"Opening [{config.HTML_OUTPUT}] in new browser tab")
+        log.info(f"Opening [{config.HTML_OUTPUT}] in new browser tab")
         try:
             webbrowser.open(config.HTML_OUTPUT, new=2)
         except Exception:
@@ -70,7 +74,7 @@ class History_Handler():
         """ Establish DB connection. Called when when class is used with context manager """
         self._copy_history_db()
 
-        log.info(f"Connecting to DB [{config.DB_PATH_LOCAL}]")
+        log.debug(f"Connecting to DB [{config.DB_PATH_LOCAL}]")
         try:
             self.dbh = sqlite3.connect(config.DB_PATH_LOCAL)
             self.cursor = self.dbh.cursor()
@@ -82,7 +86,7 @@ class History_Handler():
 
     def __exit__(self, type, value, traceback):
         """ Close DB connection. Called when class exits context manager """
-        log.info(f"Disconnecting DB [{config.DB_PATH_LOCAL}]")
+        log.debug(f"Disconnecting DB [{config.DB_PATH_LOCAL}]")
         self.dbh.close()
 
     def _copy_history_db(self):
@@ -114,6 +118,7 @@ class History_Handler():
 
     def _get_history_age(self):
         """ Query the DB for the entry with the oldest age and return the timestmap """
+
         sql_query = f"""
         SELECT visit_time
         FROM visits
@@ -123,7 +128,6 @@ class History_Handler():
         """
 
         history_age = helper.date_from_webkit(self._query_db(sql_query)[0])
-
         log.info(f"Oldest history entry is from [{history_age}]")
         return history_age
 
@@ -178,10 +182,12 @@ class History_Handler():
             stripped_urls.append(url_stripped)
 
         if skipped_urls:
-            log.info(f"Skipped {skipped_urls} urls")
+            log.info(f"Skipped [{skipped_urls}] urls")
 
         # Use a Cunter object to count and order the list
-        return list(Counter(stripped_urls).most_common(self.top))
+        charts = list(Counter(stripped_urls).most_common(self.top))
+        # Format visits with thousands seperator before returning
+        return [(url, f"{visits:n}") for url, visits in charts]
 
 
     def create_charts(self, top=None, cli=False):
@@ -201,7 +207,10 @@ class History_Handler():
         # Construct the charts list 
         history = self._get_history()
         charts = self._charts_from_history(history)
-        
+
+        # Format date to a more internationally understandable format like '15 Jan, 2020' before parsing
+        self.since = datetime.strptime(self.since, "%Y-%m-%d").strftime("%d %b, %Y")
+
         # Parse the result either to a HTML file or command line
         if not cli:
             Html_Handler().write_html(charts, self.since)
@@ -210,7 +219,7 @@ class History_Handler():
             padding = max([len(url) for url, visits in charts]) + 5
 
             print("")
-            print(f"Top {self.top} visited URLs since {self.since}")
+            print(f"Top {self.top} visited URLs since [{self.since}]")
             print("{i:.<3}{url:.<{padding}}{visits}".format(i="#", url="url", padding=padding, visits="visits"))
             
             for i, entry in enumerate(charts, start=1):
