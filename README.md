@@ -30,7 +30,7 @@ python chrome_charts.py
 ```
 A HTML file containing your top 10 most visited websites will be shown in your default browser
 
-!["HTML output"](https://i.imgur.com/10QgRpG.png)
+!["HTML output"](https://i.imgur.com/EpQoQpJ.png)
 
 ### Using arguments
 Chrome Charts offers a few options to customize your result
@@ -54,13 +54,13 @@ python chrome_charts.py --top 5 --cli
 ```
 Result:
 ```
-Chrome History - Top 5 visited URLs since 2020-01-13
-#..url...........................................visits
-01 https://www.youtube.com/                      8020
-02 https://www.google.com/                       6424
-03 https://www.reddit.com/                       2607
-04 https://docs.google.com/                      1361
-05 https://drive.google.com/                     425
+Top 5 visited URLs since [16 Jan, 2020]
+#..url................................visits
+01 https://www.youtube.com/           8.020
+02 https://www.google.com/            6.424
+03 https://www.reddit.com/            2.607
+04 https://docs.google.com/           1.361
+05 https://drive.google.com/          425
 ```
 
 ## Quick documentation
